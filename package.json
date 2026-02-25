@@ -1,0 +1,16 @@
+{
+  "name": "slowverb-client",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "export:chain": "ruby scripts/export-chain.rb"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vite": "^7.3.1"
+  }
+}

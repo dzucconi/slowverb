@@ -1,0 +1,6 @@
+.DS_Store
+.vite
+dist
+legacy
+node_modules
+scripts
