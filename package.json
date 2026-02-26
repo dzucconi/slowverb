@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "export:chain": "ruby scripts/export-chain.rb"
+    "export:chain": "ruby scripts/export-chain.rb && python3 scripts/normalize-chain.py",
+    "normalize:chain": "python3 scripts/normalize-chain.py"
   },
   "devDependencies": {
     "typescript": "^5.9.2",
