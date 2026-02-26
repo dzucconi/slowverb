@@ -1,0 +1,12 @@
+{
+  "raw_files": 1892,
+  "kept_files": 1572,
+  "english_kept": 1522,
+  "non_english_moved": 20,
+  "review_moved": 30,
+  "dropped_too_short_or_invalid": 0,
+  "dropped_as_duplicates": 320,
+  "clean_dir": "data/wayback-lyrics/clean/lyrics",
+  "non_english_dir": "data/wayback-lyrics/clean/non-english",
+  "review_dir": "data/wayback-lyrics/clean/review"
+}

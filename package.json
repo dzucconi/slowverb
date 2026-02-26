@@ -7,10 +7,15 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "export:chain": "ruby scripts/export-chain.rb && python3 scripts/normalize-chain.py",
-    "normalize:chain": "python3 scripts/normalize-chain.py"
+    "export:legacy-chain": "ruby scripts/export-chain.rb && python3 scripts/normalize-chain.py",
+    "build:chain": "python3 scripts/build-chain-from-clean.py",
+    "clean:lyrics": "python3 scripts/clean-lyrics-corpus.py",
+    "review:lyrics": "python3 scripts/review-lyrics.py",
+    "scrape:lyrics": "node scripts/scrape-wayback-lyrics-playwright.mjs --seed-mode index --index-url https://web.archive.org/web/20070629050349/http://lyrics.trancestation.nl/full_lyrics.php --refresh-seed --workers 2 --request-delay 1.2 --save-every 10 --log-every 5 --snapshot 20160319041902 --alt-snapshots 20070617170625,20070629050349,20090210043238",
+    "scrape:lyrics:retry": "node scripts/scrape-wayback-lyrics-playwright.mjs --seed-mode index --index-url https://web.archive.org/web/20070629050349/http://lyrics.trancestation.nl/full_lyrics.php --refresh-seed --retry-failures --failures-only --workers 1 --request-delay 2.0 --save-every 5 --log-every 2 --snapshot 20160319041902 --alt-snapshots 20070617170625,20070629050349,20090210043238"
   },
   "devDependencies": {
+    "playwright": "^1.55.0",
     "typescript": "^5.9.2",
     "vite": "^7.3.1"
   }

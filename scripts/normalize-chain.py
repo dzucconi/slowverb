@@ -6,7 +6,7 @@ import unicodedata
 from collections import defaultdict
 from pathlib import Path
 
-CHAIN_PATH = Path(__file__).resolve().parent.parent / "public" / "chain.json"
+CHAIN_PATH = Path(__file__).resolve().parent.parent / "public" / "chain-legacy.json"
 
 CP1252_MAP = {
     "\x91": "‘",

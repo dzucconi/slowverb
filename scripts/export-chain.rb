@@ -5,7 +5,7 @@ require 'json'
 require 'msgpack'
 
 INPUT_PATH = File.expand_path('../legacy/slowverb.com/models/dictionaries/slow_verb.mmd', __dir__)
-OUTPUT_PATH = File.expand_path('../public/chain.json', __dir__)
+OUTPUT_PATH = File.expand_path('../public/chain-legacy.json', __dir__)
 
 unpacker = MessagePack::Unpacker.new
 unpacker.feed(File.binread(INPUT_PATH))

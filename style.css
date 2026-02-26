@@ -143,3 +143,26 @@ body {
 p {
   margin: 0;
 }
+
+body {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+[data-toast] {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 20px;
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+[data-toast].visible {
+  opacity: 1;
+}

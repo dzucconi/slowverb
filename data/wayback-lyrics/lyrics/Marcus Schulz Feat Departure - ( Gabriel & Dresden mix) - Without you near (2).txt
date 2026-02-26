@@ -1,0 +1,9 @@
+In the current lyrics, it says
+"it's a little bit feign without you near"
+it should be
+"it's a little bit faint without you near"
+
+also,
+"How can you sit there watch , someone else... "
+should be
+"How can you sit there watching, someone else... "

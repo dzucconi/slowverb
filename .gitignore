@@ -1,5 +1,8 @@
 .DS_Store
+.ruby-lsp
 .vite
+data
 dist
 legacy
 node_modules
+scripts/__pycache__

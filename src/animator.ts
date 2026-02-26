@@ -1,7 +1,7 @@
-import { AnimationConfig } from "./types";
+import { CONFIG } from "./config";
 
-const durationForToken = (token: string, config: AnimationConfig): number =>
-  token.length * config.factorMsPerCharacter;
+const durationForToken = (token: string): number =>
+  token.length * CONFIG.animation.fadeInMsPerCharacter;
 
 const createWordElement = (word: string): HTMLSpanElement => {
   const element = document.createElement("span");
@@ -10,23 +10,69 @@ const createWordElement = (word: string): HTMLSpanElement => {
   return element;
 };
 
-const animateFadeIn = (element: HTMLElement, durationMs: number): Promise<void> => {
+const animateFadeIn = (
+  element: HTMLElement,
+  durationMs: number,
+  signal: AbortSignal,
+): Promise<void> => {
+  if (signal.aborted) return Promise.resolve();
   const animation = element.animate([{ opacity: 0 }, { opacity: 1 }], {
     duration: durationMs,
     easing: "linear",
-    fill: "forwards"
+    fill: "forwards",
   });
-
-  return animation.finished.then(() => undefined);
+  return new Promise<void>((resolve) => {
+    const abort = () => {
+      animation.cancel();
+      resolve();
+    };
+    signal.addEventListener("abort", abort, { once: true });
+    animation.finished.then(() => {
+      signal.removeEventListener("abort", abort);
+      resolve();
+    });
+  });
 };
+
+const animateFadeOut = (
+  container: HTMLElement,
+  signal: AbortSignal,
+): Promise<void> => {
+  if (signal.aborted) return Promise.resolve();
+  const animation = container.animate([{ opacity: 1 }, { opacity: 0 }], {
+    duration: CONFIG.animation.fadeOutMs,
+    easing: "linear",
+  });
+  return new Promise<void>((resolve) => {
+    const abort = () => {
+      animation.cancel();
+      container.style.opacity = "0";
+      resolve();
+    };
+    signal.addEventListener("abort", abort, { once: true });
+    animation.finished.then(() => {
+      signal.removeEventListener("abort", abort);
+      container.style.opacity = "0";
+      resolve();
+    });
+  });
+};
+
+const delay = (ms: number, signal: AbortSignal): Promise<void> =>
+  new Promise((resolve) => {
+    if (signal.aborted) return resolve();
+    const timer = setTimeout(resolve, ms);
+    signal.addEventListener("abort", () => {
+      clearTimeout(timer);
+      resolve();
+    }, { once: true });
+  });
 
 const buildVerseElements = (
   fragments: ReadonlyArray<string>,
   container: HTMLElement,
-  config: AnimationConfig
-): Readonly<{ words: ReadonlyArray<HTMLSpanElement>; totalDurationMs: number }> => {
+): ReadonlyArray<HTMLSpanElement> => {
   const words: HTMLSpanElement[] = [];
-  let totalDurationMs = 0;
 
   for (const fragment of fragments) {
     const paragraph = document.createElement("p");
@@ -35,7 +81,6 @@ const buildVerseElements = (
     tokens.forEach((token, index) => {
       const wordElement = createWordElement(token);
       words.push(wordElement);
-      totalDurationMs += durationForToken(token, config);
       paragraph.appendChild(wordElement);
 
       if (index < tokens.length - 1) {
@@ -46,31 +91,56 @@ const buildVerseElements = (
     container.appendChild(paragraph);
   }
 
-  return { words, totalDurationMs };
+  return words;
 };
 
 const animateWordSequence = async (
   words: ReadonlyArray<HTMLSpanElement>,
-  config: AnimationConfig
+  signal: AbortSignal,
 ): Promise<void> => {
   for (const wordElement of words) {
+    if (signal.aborted) return;
     const token = wordElement.textContent ?? "";
-    await animateFadeIn(wordElement, durationForToken(token, config));
+    await animateFadeIn(wordElement, durationForToken(token), signal);
   }
 };
 
+export type AnimationLoop = Readonly<{
+  getCurrentText: () => string;
+  skip: () => void;
+}>;
+
 export const startAnimationLoop = (
   nextFragments: () => ReadonlyArray<string>,
-  config: AnimationConfig
-): void => {
-  const run = (): void => {
-    document.body.innerHTML = "";
-    const fragments = nextFragments();
-    const { words, totalDurationMs } = buildVerseElements(fragments, document.body, config);
+): AnimationLoop => {
+  const wrapper = document.createElement("div");
+  document.body.appendChild(wrapper);
 
-    void animateWordSequence(words, config);
-    window.setTimeout(run, totalDurationMs + config.pauseMs);
+  let currentFragments: ReadonlyArray<string> = [];
+  let controller = new AbortController();
+
+  const run = async (): Promise<void> => {
+    controller = new AbortController();
+    const { signal } = controller;
+
+    wrapper.innerHTML = "";
+    wrapper.style.opacity = "1";
+
+    currentFragments = nextFragments();
+    const words = buildVerseElements(currentFragments, wrapper);
+
+    await animateWordSequence(words, signal);
+    if (!signal.aborted) await delay(CONFIG.animation.pauseAfterVerseMs, signal);
+    if (!signal.aborted) await animateFadeOut(wrapper, signal);
+    if (!signal.aborted) await delay(CONFIG.animation.blackHoldMs, signal);
+
+    void run();
   };
 
-  run();
+  void run();
+
+  return {
+    getCurrentText: () => currentFragments.join("\n"),
+    skip: () => controller.abort(),
+  };
 };

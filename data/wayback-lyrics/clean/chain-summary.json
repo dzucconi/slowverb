@@ -1,0 +1,19 @@
+{
+  "input_files": 1528,
+  "lines_seen": 41187,
+  "lines_used": 38199,
+  "tokens_seen": 239300,
+  "transitions": 363754,
+  "starter_keys": 14685,
+  "orders": [
+    2,
+    3,
+    4
+  ],
+  "output_keys": {
+    "2": 40839,
+    "3": 56035,
+    "4": 47772
+  },
+  "output_path": "public/chain.json"
+}

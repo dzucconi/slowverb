@@ -1,16 +1,14 @@
 export type Chain = Readonly<Record<string, ReadonlyArray<string>>>;
 
-export type MarkovModel = Readonly<{
+export type LegacyModel = Readonly<{
   chain: Chain;
   starterKeys: ReadonlyArray<string>;
 }>;
 
-export type AnimationConfig = Readonly<{
-  factorMsPerCharacter: number;
-  pauseMs: number;
-}>;
+export type MultiOrderChain = Readonly<Record<string, Chain>>;
 
-export const animationConfig: AnimationConfig = {
-  factorMsPerCharacter: 75,
-  pauseMs: 4000
-};
+export type MarkovModel = Readonly<{
+  chains: MultiOrderChain;
+  orders: ReadonlyArray<number>;
+  starterKeys: ReadonlyArray<string>;
+}>;
