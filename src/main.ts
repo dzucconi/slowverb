@@ -119,6 +119,13 @@ const boot = async (): Promise<void> => {
       if (e.key === "ArrowRight") {
         loop.skip();
         showToast("Next");
+      } else if (e.key === "ArrowLeft") {
+        loop.previous();
+        showToast("Previous");
+      } else if (e.key === " ") {
+        e.preventDefault();
+        const isPaused = loop.togglePause();
+        showToast(isPaused ? "Paused" : "Playing");
       }
     });
     window.setTimeout(() => window.location.reload(), reloadMinutes * 60_000);

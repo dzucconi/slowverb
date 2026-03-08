@@ -108,6 +108,8 @@ const animateWordSequence = async (
 export type AnimationLoop = Readonly<{
   getCurrentText: () => string;
   skip: () => void;
+  previous: () => void;
+  togglePause: () => boolean;
 }>;
 
 type AnimationOptions = Readonly<{ fade?: boolean }>;
@@ -123,18 +125,38 @@ export const startAnimationLoop = (
   const wrapper = document.createElement("div");
   document.body.appendChild(wrapper);
 
+  const history: ReadonlyArray<string>[] = [];
+  let historyIndex = -1;
   let currentFragments: ReadonlyArray<string> = [];
   let controller = new AbortController();
+  let direction: "forward" | "back" = "forward";
+  let paused = false;
+  let unpause: (() => void) | null = null;
+
+  const present = (fragments: ReadonlyArray<string>): ReadonlyArray<HTMLSpanElement> => {
+    wrapper.innerHTML = "";
+    wrapper.style.opacity = "1";
+    currentFragments = fragments;
+    return buildVerseElements(fragments, wrapper);
+  };
 
   const run = async (): Promise<void> => {
     controller = new AbortController();
     const { signal } = controller;
 
-    wrapper.innerHTML = "";
-    wrapper.style.opacity = "1";
+    let fragments: ReadonlyArray<string>;
 
-    currentFragments = nextFragments();
-    const words = buildVerseElements(currentFragments, wrapper);
+    if (direction === "back" && historyIndex >= 0) {
+      fragments = history[historyIndex]!;
+    } else {
+      fragments = nextFragments();
+      history.push(fragments);
+      if (history.length > CONFIG.ui.maxHistory) history.shift();
+      historyIndex = history.length - 1;
+    }
+
+    direction = "forward";
+    const words = present(fragments);
 
     if (options.fade === false) {
       showAllWords(words);
@@ -146,6 +168,11 @@ export const startAnimationLoop = (
       if (!signal.aborted) await delay(CONFIG.animation.blackHoldMs, signal);
     }
 
+    if (paused && !signal.aborted) {
+      await new Promise<void>((resolve) => { unpause = resolve; });
+      unpause = null;
+    }
+
     void run();
   };
 
@@ -153,6 +180,24 @@ export const startAnimationLoop = (
 
   return {
     getCurrentText: () => currentFragments.join("\n"),
-    skip: () => controller.abort(),
+    skip: () => {
+      historyIndex = history.length;
+      direction = "forward";
+      if (unpause) unpause();
+      controller.abort();
+    },
+    previous: () => {
+      if (historyIndex > 0) {
+        historyIndex--;
+        direction = "back";
+        if (unpause) unpause();
+        controller.abort();
+      }
+    },
+    togglePause: () => {
+      paused = !paused;
+      if (!paused && unpause) unpause();
+      return paused;
+    },
   };
 };

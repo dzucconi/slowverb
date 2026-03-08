@@ -17,6 +17,7 @@ export const CONFIG = {
   },
   ui: {
     cursorIdleMs: 3000,
+    maxHistory: 50,
   },
   app: {
     defaultReloadMinutes: 30,
