@@ -1,12 +1,16 @@
 # Slow Verb
 
-A Markov chain derived from 39,020 lines of vocal trance lyrics.
-
-A single song.
+A Markov chain derived from 41,064 lines of vocal trance lyrics. A single song.
 
 ## Meta
 
 - **State**: production
+- **Production**:
+  - **URL**: https://www.slowverb.com
+  - **URL**: https://damonzucconi-slowverb.vercel.app/
+- **Host**: `https://app.netlify.com/projects/damonzucconi-slowverb/overview`
+- **Deploys**: pushes to your default branch auto-deploy to production. [Manually trigger a deploy](https://app.netlify.com/projects/damonzucconi-slowverb/deploys)
+
 
 ## Usage
 
