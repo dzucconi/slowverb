@@ -102,7 +102,7 @@ def normalize_text(value: str) -> str:
         text = decoded
     # Dotless i commonly appears from entity-decoded scrape artifacts in this corpus.
     text = text.replace("ı", "i")
-    text = text.replace("�", "")
+    text = text.replace("�", "\u2019")
     text = _smartify_quotes(text)
     text = text.replace("\\", "")
     text = re.sub(r"<?\s*/?br\s*/?>", "\n", text, flags=re.IGNORECASE)
@@ -126,6 +126,7 @@ def normalize_text(value: str) -> str:
     text = re.sub(r"\(\s*[?…]+\s*\)", "", text)
     text = text.replace("((", "(").replace("))", ")")
     text = _fix_misspellings(text)
+    text = _restore_contractions(text)
     text = re.sub(r"\s+", " ", text).strip()
     return text
 
@@ -174,6 +175,87 @@ def _fix_misspellings(text: str) -> str:
         return replacement
 
     return _MISSPELLING_RE.sub(_replace, text)
+
+
+_CONTRACTIONS_CS = {
+    "Im": "I\u2019m",
+    "Ive": "I\u2019ve",
+    "Ill": "I\u2019ll",
+    "Id": "I\u2019d",
+}
+
+_CONTRACTIONS_CI = {
+    "dont": "don\u2019t",
+    "wont": "won\u2019t",
+    "cant": "can\u2019t",
+    "didnt": "didn\u2019t",
+    "doesnt": "doesn\u2019t",
+    "isnt": "isn\u2019t",
+    "wasnt": "wasn\u2019t",
+    "werent": "weren\u2019t",
+    "havent": "haven\u2019t",
+    "hasnt": "hasn\u2019t",
+    "hadnt": "hadn\u2019t",
+    "wouldnt": "wouldn\u2019t",
+    "shouldnt": "shouldn\u2019t",
+    "couldnt": "couldn\u2019t",
+    "mustnt": "mustn\u2019t",
+    "musnt": "mustn\u2019t",
+    "arent": "aren\u2019t",
+    "youre": "you\u2019re",
+    "theyre": "they\u2019re",
+    "hes": "he\u2019s",
+    "shes": "she\u2019s",
+    "thats": "that\u2019s",
+    "whats": "what\u2019s",
+    "youve": "you\u2019ve",
+    "theyve": "they\u2019ve",
+    "weve": "we\u2019ve",
+    "youd": "you\u2019d",
+    "theyd": "they\u2019d",
+    "hed": "he\u2019d",
+    "whos": "who\u2019s",
+    "heres": "here\u2019s",
+    "theres": "there\u2019s",
+    "wheres": "where\u2019s",
+    "aint": "ain\u2019t",
+}
+
+_CONTRACTION_CS_RE = re.compile(
+    r"\b(" + "|".join(re.escape(k) for k in _CONTRACTIONS_CS) + r")\b"
+)
+_CONTRACTION_CI_RE = re.compile(
+    r"\b(" + "|".join(re.escape(k) for k in _CONTRACTIONS_CI) + r")\b",
+    re.IGNORECASE,
+)
+_ITS_RE = re.compile(r"(?<!of )\bits\b", re.IGNORECASE)
+
+
+def _restore_contractions(text: str) -> str:
+    def _cs(m: re.Match[str]) -> str:
+        return _CONTRACTIONS_CS[m.group(0)]
+
+    def _ci(m: re.Match[str]) -> str:
+        word = m.group(0)
+        replacement = _CONTRACTIONS_CI[word.lower()]
+        if word.isupper():
+            return replacement.upper()
+        if word[0].isupper():
+            return replacement[0].upper() + replacement[1:]
+        return replacement
+
+    def _its(m: re.Match[str]) -> str:
+        w = m.group(0)
+        if w.isupper():
+            return "IT\u2019S"
+        if w[0].isupper():
+            return "It\u2019s"
+        return "it\u2019s"
+
+    text = _CONTRACTION_CS_RE.sub(_cs, text)
+    text = _CONTRACTION_CI_RE.sub(_ci, text)
+    text = _ITS_RE.sub(_its, text)
+    return text
 
 
 def normalize_title_from_stem(stem: str) -> str:

@@ -4,16 +4,16 @@
   "lines_used": 38197,
   "tokens_seen": 239217,
   "transitions": 363945,
-  "starter_keys": 14680,
+  "starter_keys": 14583,
   "orders": [
     2,
     3,
     4
   ],
   "output_keys": {
-    "2": 40799,
-    "3": 56019,
-    "4": 47787
+    "2": 40342,
+    "3": 55639,
+    "4": 47577
   },
   "output_path": "public/chain.json"
 }
