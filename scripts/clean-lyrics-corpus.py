@@ -154,10 +154,24 @@ _CREDIT_PATTERNS = [
 ]
 
 
+_SECTION_LABEL = re.compile(
+    r"^\s*(?:"
+    r"(?:verse|chorus|bridge|hook|refrain|intro|outro|pre[- ]?chorus|post[- ]?chorus|interlude|instrumental|coda|solo|breakdown|build|drop|ad[- ]?lib)"
+    r"\s*(?:\d+\s*)?\s*(?:[/:&,]\s*(?:verse|chorus|bridge|hook|refrain|intro|outro|pre[- ]?chorus|build|drop|instrumental|interlude)\s*(?:\d+\s*)?)*"
+    r"|repeat\s*(?:[×x]?\s*\d+)?"
+    r"|[\u201c\u201d\"'][^\"\u2019\u201c\u201d]+[\u201c\u201d\"'\u2019]\s*[-\u2013\u2014]\s*lyrics"
+    r"|lyrics"
+    r")\s*:?\s*$",
+    re.IGNORECASE,
+)
+
+
 def is_noise_line(line: str) -> bool:
     if not line.strip():
         return False
     if all(ch in "_- " for ch in line):
+        return True
+    if _SECTION_LABEL.match(line.strip()):
         return True
     if any(pattern.search(line) for pattern in _CREDIT_PATTERNS):
         return True
