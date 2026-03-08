@@ -110,8 +110,15 @@ export type AnimationLoop = Readonly<{
   skip: () => void;
 }>;
 
+type AnimationOptions = Readonly<{ fade?: boolean }>;
+
+const showAllWords = (words: ReadonlyArray<HTMLSpanElement>): void => {
+  for (const el of words) el.style.opacity = "1";
+};
+
 export const startAnimationLoop = (
   nextFragments: () => ReadonlyArray<string>,
+  options: AnimationOptions = {},
 ): AnimationLoop => {
   const wrapper = document.createElement("div");
   document.body.appendChild(wrapper);
@@ -129,10 +136,15 @@ export const startAnimationLoop = (
     currentFragments = nextFragments();
     const words = buildVerseElements(currentFragments, wrapper);
 
-    await animateWordSequence(words, signal);
-    if (!signal.aborted) await delay(CONFIG.animation.pauseAfterVerseMs, signal);
-    if (!signal.aborted) await animateFadeOut(wrapper, signal);
-    if (!signal.aborted) await delay(CONFIG.animation.blackHoldMs, signal);
+    if (options.fade === false) {
+      showAllWords(words);
+      await delay(CONFIG.animation.pauseAfterVerseMs, signal);
+    } else {
+      await animateWordSequence(words, signal);
+      if (!signal.aborted) await delay(CONFIG.animation.pauseAfterVerseMs, signal);
+      if (!signal.aborted) await animateFadeOut(wrapper, signal);
+      if (!signal.aborted) await delay(CONFIG.animation.blackHoldMs, signal);
+    }
 
     void run();
   };

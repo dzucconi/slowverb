@@ -21,11 +21,12 @@ Open `http://localhost:5173` to view the default (multi-order Markov) mode.
 
 ### URL
 
-| Param  | Description                             | Type                   | Default    |
-| ------ | --------------------------------------- | ---------------------- | ---------- |
-| `mode` | Generation model to use                 | `"markov" \| "legacy"` | `"markov"` |
-| `temp` | Sampling temperature (markov mode only) | `number`               | `1`        |
-| `r`    | Auto-reload interval                    | `number` (minutes)     | `30`       |
+| Param    | Description                             | Type                   | Default    |
+| -------- | --------------------------------------- | ---------------------- | ---------- |
+| `mode`   | Generation model to use                 | `"markov" \| "legacy"` | `"markov"` |
+| `temp`   | Sampling temperature (markov mode only) | `number`               | `1`        |
+| `r`      | Auto-reload interval                    | `number` (minutes)     | `30`       |
+| `fade`   | Enable fade transitions                 | `"true" \| "false"`    | `"true"`   |
 
 ### Config
 

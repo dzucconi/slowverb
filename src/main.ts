@@ -32,6 +32,7 @@ const readParams = () => {
     mode: parseMode(params.get("mode")),
     temperature: parseTemperature(params.get("temp")),
     reloadMinutes: parseReloadMinutes(params.get("r")),
+    fade: params.get("fade") !== "false",
   };
 };
 
@@ -110,12 +111,15 @@ const boot = async (): Promise<void> => {
   try {
     setupFullscreen();
     setupCursorAutoHide();
-    const { mode, temperature, reloadMinutes } = readParams();
+    const { mode, temperature, reloadMinutes, fade } = readParams();
     const generate = await buildGenerator(mode, temperature);
-    const loop = startAnimationLoop(generate);
+    const loop = startAnimationLoop(generate, { fade });
     setupCopyShortcut(loop);
     document.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowRight") loop.skip();
+      if (e.key === "ArrowRight") {
+        loop.skip();
+        showToast("Next");
+      }
     });
     window.setTimeout(() => window.location.reload(), reloadMinutes * 60_000);
   } catch {
