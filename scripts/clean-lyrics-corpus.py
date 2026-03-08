@@ -125,8 +125,55 @@ def normalize_text(value: str) -> str:
     text = text.replace("->", "").replace("|:", "").replace("~", "")
     text = re.sub(r"\(\s*[?…]+\s*\)", "", text)
     text = text.replace("((", "(").replace("))", ")")
+    text = _fix_misspellings(text)
     text = re.sub(r"\s+", " ", text).strip()
     return text
+
+
+_MISSPELLINGS = {
+    "everytime": "every time",
+    "trough": "through",
+    "comming": "coming",
+    "rythm": "rhythm",
+    "belive": "believe",
+    "beleive": "believe",
+    "dissapear": "disappear",
+    "dissapeared": "disappeared",
+    "dissapearing": "disappearing",
+    "tommorow": "tomorrow",
+    "tomorow": "tomorrow",
+    "strenght": "strength",
+    "allright": "alright",
+    "loosing": "losing",
+    "seperate": "separate",
+    "begining": "beginning",
+    "untill": "until",
+    "decieve": "deceive",
+    "runing": "running",
+    "throught": "throughout",
+    "wonderfull": "wonderful",
+    "peacefull": "peaceful",
+    "addicition": "addiction",
+    "suprise": "surprise",
+}
+
+_MISSPELLING_RE = re.compile(
+    r"\b(" + "|".join(re.escape(k) for k in _MISSPELLINGS) + r")\b",
+    re.IGNORECASE,
+)
+
+
+def _fix_misspellings(text: str) -> str:
+    def _replace(m: re.Match[str]) -> str:
+        word = m.group(0)
+        replacement = _MISSPELLINGS[word.lower()]
+        if word.isupper():
+            return replacement.upper()
+        if word[0].isupper():
+            return replacement[0].upper() + replacement[1:]
+        return replacement
+
+    return _MISSPELLING_RE.sub(_replace, text)
 
 
 def normalize_title_from_stem(stem: str) -> str:

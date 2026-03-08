@@ -2,18 +2,18 @@
   "input_files": 1528,
   "lines_seen": 41064,
   "lines_used": 38197,
-  "tokens_seen": 239150,
-  "transitions": 363745,
-  "starter_keys": 14684,
+  "tokens_seen": 239217,
+  "transitions": 363945,
+  "starter_keys": 14680,
   "orders": [
     2,
     3,
     4
   ],
   "output_keys": {
-    "2": 40834,
-    "3": 56032,
-    "4": 47771
+    "2": 40799,
+    "3": 56019,
+    "4": 47787
   },
   "output_path": "public/chain.json"
 }
